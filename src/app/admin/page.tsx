@@ -7,11 +7,13 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
-import { db } from "@/firebaseConfig";
+import useFirestore from "@/hooks/useIsClient"; // Adjust the path if needed
 import { Team } from "@/types";
 import { Plus, X, Pencil, Check, Dot } from "lucide-react";
 
 export default function AdminPage() {
+  const firestore = useFirestore();
+
   const [score, setScore] = useState("");
   const [totalKills, setTotalKills] = useState("");
   const [teams, setTeams] = useState<Team[]>([]);
@@ -22,8 +24,10 @@ export default function AdminPage() {
   const [newTotalKills, setNewTotalKills] = useState<string>("");
 
   useEffect(() => {
+    if (!firestore) return;
+
     const fetchTeams = async () => {
-      const teamsCollection = collection(db, "teams");
+      const teamsCollection = collection(firestore, "teams");
       const teamsSnapshot = await getDocs(teamsCollection);
       const teamsList = teamsSnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -33,7 +37,7 @@ export default function AdminPage() {
     };
 
     fetchTeams();
-  }, []);
+  }, [firestore]);
 
   const handleAddTeam = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +47,8 @@ export default function AdminPage() {
     }
     try {
       const parsedScore = parseFloat(score);
-      const docRef = await addDoc(collection(db, "teams"), {
+      if (!firestore) return;
+      const docRef = await addDoc(collection(firestore, "teams"), {
         score: parsedScore,
         totalKills: parseInt(totalKills),
         players,
@@ -93,6 +98,7 @@ export default function AdminPage() {
       handleAddPlayer();
     }
   };
+
   const handleEdit = (team: Team) => {
     setIsEditing(team.id);
     setNewScore(team.score.toString());
@@ -103,7 +109,8 @@ export default function AdminPage() {
     try {
       const parsedScore = parseFloat(newScore);
       const parsedTotalKills = parseInt(newTotalKills);
-      const teamDoc = doc(db, "teams", teamId);
+      if (!firestore) return;
+      const teamDoc = doc(firestore, "teams", teamId);
       await updateDoc(teamDoc, {
         score: parsedScore,
         totalKills: parsedTotalKills,
