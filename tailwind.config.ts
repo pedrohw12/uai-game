@@ -15,9 +15,9 @@ const config: Config = {
       },
       colors:{
         "purple-dark": "#3F2D75",
-        "another-purple": "#6D64FD",
-        "another-green":"#3AE707",
-        "base-purple": "#8265F6",
+        "another-purple": "#FE59FF",
+        "another-green":"#01C8D6",
+        "base-purple": "#FE59FF",
        
       },
     },
